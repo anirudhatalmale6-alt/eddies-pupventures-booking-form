@@ -1,0 +1,413 @@
+/* ===========================================================
+   Eddie's Pupventures — booking form
+   Built mobile-first: big targets, one question-set per screen.
+   Falls back to the theme's colours if the plugin is ever used
+   on a different theme.
+   =========================================================== */
+
+.pupbf-form {
+	--pupbf-coral: var(--wp--preset--color--coral, #FF6B4A);
+	--pupbf-sky: var(--wp--preset--color--sky, #3FB9E0);
+	--pupbf-sun: var(--wp--preset--color--sunshine, #FFC531);
+	--pupbf-meadow: var(--wp--preset--color--meadow, #3DA35D);
+	--pupbf-ink: var(--wp--preset--color--contrast, #2C2724);
+	--pupbf-cream: var(--wp--preset--color--base, #FFFBF3);
+	--pupbf-line: #F0E4D2;
+	--pupbf-head: var(--wp--preset--font-family--heading, ui-rounded, "Segoe UI", sans-serif);
+	--pupbf-body: var(--wp--preset--font-family--body, ui-rounded, "Segoe UI", sans-serif);
+
+	max-width: 640px;
+	margin-inline: auto;
+	font-family: var(--pupbf-body);
+	color: var(--pupbf-ink);
+}
+
+.pupbf-form *, .pupbf-form *::before, .pupbf-form *::after { box-sizing: border-box; }
+
+/* ---------- progress ---------- */
+.pupbf-progress { margin-bottom: 1.6rem; }
+.pupbf-progress-bar {
+	height: 10px;
+	border-radius: 999px;
+	background: var(--pupbf-line);
+	overflow: hidden;
+}
+.pupbf-progress-fill {
+	display: block;
+	height: 100%;
+	width: 0%;
+	border-radius: 999px;
+	background: linear-gradient(90deg, var(--pupbf-sun) 0%, var(--pupbf-coral) 100%);
+	transition: width .35s cubic-bezier(.4,0,.2,1);
+}
+.pupbf-progress-text {
+	margin: .5rem 0 0;
+	font-size: .88rem;
+	font-weight: 700;
+	letter-spacing: .04em;
+	text-transform: uppercase;
+	color: #8a7f76;
+}
+
+/* ---------- steps ----------
+   Every step is visible by default, so with JavaScript off the form is one
+   long page that still submits. JavaScript adds .pupbf-stepped, which is what
+   turns it into one screen at a time. */
+.pupbf-step { margin-bottom: 2.75rem; }
+.pupbf-progress { display: none; }
+
+.pupbf-stepped .pupbf-progress { display: block; }
+.pupbf-stepped .pupbf-step { display: none; margin-bottom: 0; }
+.pupbf-stepped .pupbf-step.is-active { display: block; animation: pupbf-in .28s ease both; }
+
+@keyframes pupbf-in {
+	from { opacity: 0; transform: translateY(10px); }
+	to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+	.pupbf-stepped .pupbf-step.is-active { animation: none; }
+	.pupbf-progress-fill { transition: none; }
+}
+
+/* Without JavaScript the Back/Continue buttons do nothing — hide them and
+   leave only the real submit button. */
+.pupbf-form:not(.pupbf-stepped) .pupbf-next,
+.pupbf-form:not(.pupbf-stepped) .pupbf-back { display: none; }
+
+.pupbf-step-head { margin-bottom: 1.4rem; }
+.pupbf-step-head h2 {
+	font-family: var(--pupbf-head);
+	font-weight: 800;
+	font-size: clamp(1.5rem, 1.2rem + 1.6vw, 2rem);
+	line-height: 1.15;
+	margin: 0 0 .25rem;
+}
+.pupbf-step-head p { margin: 0; color: #7b7069; font-size: 1rem; }
+
+/* ---------- fields ---------- */
+.pupbf-field { margin-bottom: 1.25rem; }
+.pupbf-field.pupbf-conditional[hidden] { display: none; }
+
+.pupbf-label,
+.pupbf-radios legend.pupbf-label,
+.pupbf-days legend.pupbf-label {
+	display: block;
+	font-family: var(--pupbf-head);
+	font-weight: 700;
+	font-size: 1rem;
+	margin-bottom: .4rem;
+	padding: 0;
+}
+.pupbf-req { color: var(--pupbf-coral); }
+
+.pupbf-form input[type="text"],
+.pupbf-form input[type="tel"],
+.pupbf-form input[type="email"],
+.pupbf-form input[type="number"],
+.pupbf-form textarea {
+	width: 100%;
+	border: 2px solid var(--pupbf-line);
+	background: #fff;
+	border-radius: 14px;
+	padding: .85rem 1rem;
+	font-family: var(--pupbf-body);
+	font-size: 1.05rem; /* 16px+ stops iPhones zooming on focus */
+	color: inherit;
+	transition: border-color .15s ease, box-shadow .15s ease;
+	-webkit-appearance: none;
+	appearance: none;
+}
+.pupbf-form textarea { line-height: 1.5; resize: vertical; }
+.pupbf-form input:focus,
+.pupbf-form textarea:focus {
+	outline: none;
+	border-color: var(--pupbf-coral);
+	box-shadow: 0 0 0 4px rgba(255,107,74,.14);
+}
+.pupbf-short input { max-width: 11rem; }
+
+.pupbf-help { margin: .4rem 0 0; font-size: .88rem; color: #857a72; line-height: 1.45; }
+.pupbf-error { margin: .4rem 0 0; font-size: .9rem; font-weight: 700; color: #C0392B; }
+.pupbf-has-error input,
+.pupbf-has-error textarea { border-color: #E8A79E; background: #FFF7F5; }
+.pupbf-has-error .pupbf-radios,
+.pupbf-has-error .pupbf-days { border-radius: 14px; box-shadow: 0 0 0 2px #E8A79E; padding: .5rem; }
+
+/* ---------- radios & checkboxes: big tappable cards ---------- */
+.pupbf-radios { border: 0; margin: 0; padding: 0; }
+
+.pupbf-radio,
+.pupbf-check {
+	display: flex;
+	align-items: flex-start;
+	gap: .75rem;
+	padding: .85rem 1rem;
+	margin-bottom: .55rem;
+	border: 2px solid var(--pupbf-line);
+	border-radius: 16px;
+	background: #fff;
+	cursor: pointer;
+	line-height: 1.4;
+	transition: border-color .15s ease, background-color .15s ease;
+}
+.pupbf-radio:hover,
+.pupbf-check:hover { border-color: #E4D2BA; }
+
+.pupbf-radio input,
+.pupbf-check input {
+	position: absolute;
+	opacity: 0;
+	width: 1px;
+	height: 1px;
+}
+
+.pupbf-radio-dot,
+.pupbf-check-box {
+	flex: 0 0 auto;
+	width: 24px;
+	height: 24px;
+	margin-top: 1px;
+	border: 2px solid #D8C7B0;
+	background: #fff;
+	transition: border-color .15s ease, background-color .15s ease;
+}
+.pupbf-radio-dot { border-radius: 50%; }
+.pupbf-check-box { border-radius: 7px; position: relative; }
+
+.pupbf-check-box::after {
+	content: "";
+	position: absolute;
+	left: 6px; top: 2px;
+	width: 6px; height: 11px;
+	border: solid #fff;
+	border-width: 0 3px 3px 0;
+	transform: rotate(42deg) scale(0);
+	transition: transform .16s cubic-bezier(.3,1.6,.6,1);
+}
+.pupbf-radio-dot::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	margin: auto;
+	width: 10px; height: 10px;
+	border-radius: 50%;
+	background: #fff;
+	transform: scale(0);
+	transition: transform .16s cubic-bezier(.3,1.6,.6,1);
+}
+.pupbf-radio-dot { position: relative; }
+
+.pupbf-radio input:checked ~ .pupbf-radio-dot,
+.pupbf-check input:checked ~ .pupbf-check-box {
+	background: var(--pupbf-coral);
+	border-color: var(--pupbf-coral);
+}
+.pupbf-radio input:checked ~ .pupbf-radio-dot::after,
+.pupbf-check input:checked ~ .pupbf-check-box::after { transform: rotate(42deg) scale(1); }
+.pupbf-radio input:checked ~ .pupbf-radio-dot::after { transform: scale(1); }
+
+.pupbf-radio:has(input:checked),
+.pupbf-check:has(input:checked) {
+	border-color: var(--pupbf-coral);
+	background: #FFF6F3;
+}
+.pupbf-radio input:focus-visible ~ .pupbf-radio-dot,
+.pupbf-check input:focus-visible ~ .pupbf-check-box {
+	box-shadow: 0 0 0 4px rgba(255,107,74,.22);
+}
+
+/* ---------- day picker ---------- */
+.pupbf-days { border: 0; margin: 0; padding: 0; }
+.pupbf-day {
+	display: flex;
+	align-items: center;
+	gap: .6rem;
+	margin-bottom: .55rem;
+}
+.pupbf-day .pupbf-day-check {
+	flex: 1 1 auto;
+	margin-bottom: 0;
+	min-width: 0;
+}
+.pupbf-day-time {
+	flex: 0 0 8.5rem;
+	max-width: 8.5rem;
+	opacity: .45;
+	pointer-events: none;
+	transition: opacity .18s ease;
+}
+.pupbf-day.is-on .pupbf-day-time { opacity: 1; pointer-events: auto; }
+
+@media (max-width: 380px) {
+	.pupbf-day { flex-wrap: wrap; }
+	.pupbf-day-time { flex-basis: 100%; max-width: none; margin-left: 0; }
+}
+
+/* ---------- estimate ---------- */
+.pupbf-estimate {
+	margin: 1.5rem 0 .5rem;
+	padding: 1.1rem 1.25rem;
+	border-radius: 18px;
+	background: linear-gradient(135deg, #FFF3D9 0%, #FFE6DC 100%);
+	border: 2px solid #FBDCC3;
+}
+.pupbf-estimate h3 {
+	font-family: var(--pupbf-head);
+	font-size: .82rem;
+	text-transform: uppercase;
+	letter-spacing: .09em;
+	margin: 0 0 .3rem;
+	color: #A9713F;
+}
+.pupbf-estimate-line {
+	margin: 0;
+	font-family: var(--pupbf-head);
+	font-weight: 800;
+	font-size: 1.3rem;
+	line-height: 1.3;
+}
+.pupbf-estimate-note { margin: .45rem 0 0; font-size: .82rem; color: #8b6a4d; line-height: 1.45; }
+
+/* ---------- terms panel ---------- */
+.pupbf-terms {
+	max-height: 340px;
+	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
+	overscroll-behavior: contain;
+	border: 2px solid var(--pupbf-line);
+	border-radius: 18px;
+	background: var(--pupbf-cream);
+	padding: 1.1rem 1.25rem;
+	margin-bottom: .6rem;
+	font-size: .92rem;
+	line-height: 1.55;
+}
+.pupbf-terms:focus-visible { outline: 3px solid var(--pupbf-sky); outline-offset: 2px; }
+.pupbf-terms h3 {
+	font-family: var(--pupbf-head);
+	font-size: .95rem;
+	margin: 1.1rem 0 .35rem;
+	color: var(--pupbf-coral);
+}
+.pupbf-terms h3:first-child { margin-top: 0; }
+.pupbf-terms ul { margin: 0; padding-left: 1.15rem; }
+.pupbf-terms li { margin-bottom: .3rem; color: #5c534d; }
+.pupbf-terms-note { font-size: .85rem; color: #857a72; margin: 0 0 1.4rem; }
+
+.pupbf-legal { font-size: .85rem; color: #857a72; line-height: 1.5; margin: 1rem 0 0; }
+
+/* ---------- signature ---------- */
+.pupbf-sig { position: relative; }
+.pupbf-sig-pad {
+	display: block;
+	width: 100%;
+	height: 190px;
+	border: 2px dashed #D8C7B0;
+	border-radius: 18px;
+	background: #fff;
+	touch-action: none;
+	cursor: crosshair;
+}
+.pupbf-sig.is-signed .pupbf-sig-pad { border-style: solid; border-color: var(--pupbf-meadow); }
+.pupbf-sig-hint {
+	position: absolute;
+	left: 50%; top: 50%;
+	transform: translate(-50%, -50%);
+	pointer-events: none;
+	font-family: var(--pupbf-head);
+	font-weight: 700;
+	color: #C9B79E;
+	letter-spacing: .05em;
+	text-transform: uppercase;
+	font-size: .85rem;
+}
+.pupbf-sig.is-signed .pupbf-sig-hint { display: none; }
+.pupbf-sig-clear {
+	margin-top: .55rem;
+	background: none;
+	border: 0;
+	padding: .35rem 0;
+	font-family: var(--pupbf-body);
+	font-size: .88rem;
+	color: #857a72;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+/* ---------- buttons ---------- */
+.pupbf-nav {
+	display: flex;
+	gap: .7rem;
+	align-items: center;
+	margin-top: 1.9rem;
+	flex-wrap: wrap;
+}
+.pupbf-btn {
+	font-family: var(--pupbf-head);
+	font-weight: 700;
+	font-size: 1.05rem;
+	border: 0;
+	border-radius: 999px;
+	padding: .9rem 2.1rem;
+	cursor: pointer;
+	transition: background-color .18s ease, transform .1s ease, box-shadow .18s ease;
+	min-height: 52px; /* comfortable thumb target */
+}
+.pupbf-next,
+.pupbf-submit {
+	background: var(--pupbf-coral);
+	color: #fff;
+	box-shadow: 0 10px 24px -14px rgba(255,107,74,.9);
+	flex: 1 1 auto;
+}
+.pupbf-next:hover,
+.pupbf-submit:hover { background: #E8508F; transform: translateY(-1px); }
+.pupbf-submit { background: var(--pupbf-meadow); box-shadow: 0 10px 24px -14px rgba(61,163,93,.9); }
+.pupbf-submit:hover { background: #2F8B4B; }
+.pupbf-back {
+	background: transparent;
+	color: #7b7069;
+	border: 2px solid var(--pupbf-line);
+	padding-inline: 1.5rem;
+	order: -1;
+}
+.pupbf-back:hover { border-color: #D8C7B0; color: var(--pupbf-ink); }
+.pupbf-btn:focus-visible { outline: 3px solid var(--pupbf-sky); outline-offset: 3px; }
+
+/* ---------- notices & done ---------- */
+.pupbf-notice {
+	padding: 1rem 1.15rem;
+	border-radius: 16px;
+	margin-bottom: 1.4rem;
+	font-weight: 600;
+	line-height: 1.5;
+}
+.pupbf-notice-err { background: #FFF0EC; border: 2px solid #F5C6BA; color: #A33A22; }
+
+.pupbf-done {
+	max-width: 560px;
+	margin-inline: auto;
+	text-align: center;
+	padding: 2.6rem 1.5rem;
+	border-radius: 28px;
+	background: linear-gradient(135deg, #E3F5EC 0%, #FFF3D9 100%);
+	border: 2px solid #CDEBDB;
+}
+.pupbf-done-paw { font-size: 3rem; line-height: 1; margin-bottom: .5rem; }
+.pupbf-done h2 {
+	font-family: var(--wp--preset--font-family--heading, ui-rounded, sans-serif);
+	font-weight: 800;
+	margin: 0 0 .6rem;
+}
+.pupbf-done p { margin: 0 0 .6rem; line-height: 1.6; }
+.pupbf-done-sub { font-size: .9rem; color: #6f7d74; }
+
+/* honeypot */
+.pupbf-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+/* ---------- roomier on bigger screens ---------- */
+@media (min-width: 720px) {
+	.pupbf-nav { margin-top: 2.2rem; }
+	.pupbf-next, .pupbf-submit { flex: 0 0 auto; }
+	.pupbf-sig-pad { height: 210px; }
+}

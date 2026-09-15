@@ -1,0 +1,65 @@
+/* Booking Forms — dashboard styling */
+
+.pupbf-dim { color: #757575; font-size: 12px; }
+.pupbf-full { display: block; text-align: center; width: 100%; box-sizing: border-box; }
+
+.pupbf-pill {
+	display: inline-block;
+	padding: 2px 10px;
+	border-radius: 999px;
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 1.7;
+}
+.pupbf-pill-new   { background: #FFE9E2; color: #A33A22; }
+.pupbf-pill-done  { background: #E3F5EC; color: #256C3D; }
+.pupbf-pill-adhoc { background: #E7F4FB; color: #1C6C8A; }
+
+/* ---- the record ---- */
+.pupbf-record-h {
+	margin: 22px 0 6px;
+	padding-bottom: 5px;
+	border-bottom: 2px solid #FF6B4A;
+	font-size: 13px;
+	text-transform: uppercase;
+	letter-spacing: .06em;
+	color: #FF6B4A;
+}
+.pupbf-record-h:first-child { margin-top: 0; }
+
+.pupbf-record-table { width: 100%; border-collapse: collapse; }
+.pupbf-record-table th,
+.pupbf-record-table td {
+	text-align: left;
+	vertical-align: top;
+	padding: 8px 10px;
+	border-bottom: 1px solid #f0f0f0;
+	font-size: 13px;
+}
+.pupbf-record-table th { width: 40%; font-weight: 600; color: #50575e; }
+.pupbf-record-table tr.pupbf-sensitive td { background: #FFFBF3; font-family: ui-monospace, Menlo, Consolas, monospace; }
+.pupbf-record-table tr.pupbf-warn td { background: #FFF4F1; font-weight: 600; color: #A33A22; }
+
+.pupbf-lock { font-size: 11px; color: #757575; white-space: nowrap; }
+
+.pupbf-sig-shown {
+	display: inline-block;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	padding: 10px 14px;
+	background: #fff;
+}
+.pupbf-sig-shown img { display: block; max-width: 340px; height: auto; }
+.pupbf-sig-name { margin: 6px 0 0; font-size: 12px; color: #757575; }
+
+/* ---- signature record ---- */
+.pupbf-audit { width: 100%; border-collapse: collapse; }
+.pupbf-audit th,
+.pupbf-audit td { text-align: left; padding: 4px 0; font-size: 12px; vertical-align: top; }
+.pupbf-audit th { font-weight: 600; color: #50575e; padding-right: 10px; white-space: nowrap; }
+.pupbf-ua { word-break: break-all; line-height: 1.4; }
+
+/* Nothing on this screen is editable, so hide the empty title box. */
+.post-type-pup_booking #titlediv { display: none; }
+.post-type-pup_booking #minor-publishing,
+.post-type-pup_booking #major-publishing-actions { display: none; }
