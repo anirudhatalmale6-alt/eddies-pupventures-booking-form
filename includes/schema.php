@@ -195,10 +195,13 @@ function pupbf_schema() {
 			'fields' => array(
 				'access_info' => array(
 					'type'      => 'textarea',
-					'label'     => 'Access details (including key safe combination, if you have one)',
+					'label'     => 'How do I get in, and where will your dog be?',
 					'rows'      => 3,
+					// Codes are no longer asked for, but people type them anyway.
+					// The field stays encrypted and out of every email so that a
+					// client ignoring the instruction still isn't exposed.
 					'sensitive' => true,
-					'help'      => 'Stored encrypted in the website and never sent by email. Keys and access details are used only for looking after your dog.',
+					'help'      => 'For example: side gate is unlocked, dog is in the kitchen, lead hangs by the back door. <strong>Please don\'t put key safe codes or door codes here.</strong> Keycodes should be shared directly with Eddie\'s Pupventures, independently of this form, if required.',
 				),
 				'recording' => array(
 					'type'     => 'radio',
@@ -308,6 +311,8 @@ function pupbf_terms_blocks() {
 			'Weekday prices — 30-minute walk ' . $m( $p['weekday_30'] ) . ', 1-hour walk ' . $m( $p['weekday_60'] ) . '.',
 			'Weekend &amp; bank holiday prices — 30 minutes ' . $m( $p['weekend_30'] ) . ', 1 hour ' . $m( $p['weekend_60'] ) . '.',
 			'Additional dogs from the same household — 30 minutes ' . $m( $p['extra_dog_30'] ) . ', 1 hour ' . $m( $p['extra_dog_60'] ) . '.',
+			'The prices stated on this form are correct at the time of booking and reflect our current standard pricing. Prices are subject to change from time to time. Where a change to pricing applies, clients will be given a minimum of two weeks\' notice before the new prices take effect.',
+			'Where an alternative price has been specifically agreed in writing between the client and Eddie\'s Pupventures that agreed price will take precedence over the prices stated on this form. This includes any existing or individually agreed discounted rates, which will remain applicable in accordance with the terms of that agreement unless otherwise agreed in writing.',
 		),
 		'Payment terms (strict policy)' => array(
 			'All clients are required to make advance payment for services prior to any dog walking sessions being carried out. Payments can be made weekly or monthly.',
@@ -339,6 +344,7 @@ function pupbf_terms_blocks() {
 		),
 		'Keys &amp; home access' => array(
 			'Keys and access details will be kept secure and used solely for pet care purposes.',
+			'Keycodes should be shared directly with Eddie\'s Pupventures, independently of this form, if required.',
 			'Eddie\'s Pupventures is not responsible for issues caused by faulty locks, alarms, or incorrect access information.',
 		),
 		'Lost dog procedure' => array(

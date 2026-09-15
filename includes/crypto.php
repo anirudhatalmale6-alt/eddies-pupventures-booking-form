@@ -1,11 +1,14 @@
 <?php
 /**
  * At-rest encryption for the handful of genuinely sensitive answers
- * (right now: home access details and key safe combinations).
+ * (right now: the free-text home access answer).
+ *
+ * The form no longer asks for keycodes — clients are told to pass those on
+ * separately — but people type them in anyway, so the field stays protected.
  *
  * The key is derived from this site's WordPress salts, which live in
  * wp-config.php rather than the database — so a stolen database dump on its
- * own does not hand anyone the key safe codes.
+ * own does not hand anyone a client's home access details.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

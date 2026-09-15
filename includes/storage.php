@@ -120,7 +120,7 @@ function pupbf_format_answer( $post_id, $field_key, $redact_sensitive = false ) 
 
 /**
  * Only users who can manage the site should read submissions. WordPress's
- * default `edit_posts` would let a Contributor see key safe codes.
+ * default `edit_posts` would let a Contributor read home access details.
  */
 function pupbf_restrict_admin_access() {
 	if ( ! is_admin() ) {

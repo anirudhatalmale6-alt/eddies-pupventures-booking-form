@@ -1,5 +1,5 @@
 === Eddie's Pupventures — Booking Agreement ===
-Version: 1.1.0
+Version: 1.2.0
 
 The paper booking agreement, rebuilt as a mobile-friendly online form.
 
@@ -32,9 +32,11 @@ WHEN SOMEONE SIGNS
 * You get an email with the signed agreement attached as a PDF, plus a
   link to the record.
 * They get their own copy, PDF included.
-* Home access details (key safe codes) are encrypted in the database and
-  are deliberately left out of every email. They only appear when you're
-  logged in to your own dashboard.
+* The form does not ask for keycodes. Clients are told to pass those to
+  you separately.
+* The free-text access answer is still encrypted in the database and left
+  out of every email, in case a client types a code in regardless. It only
+  appears when you're logged in to your own dashboard.
 
 
 CHANGING THE PRICES

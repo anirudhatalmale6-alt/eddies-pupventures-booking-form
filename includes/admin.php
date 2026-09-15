@@ -382,7 +382,7 @@ function pupbf_settings_page() {
 						<p style="margin-top:.8rem;">
 							<label>
 								<input type="checkbox" name="pupbf_pdf_sensitive" value="1" <?php checked( 'yes' === get_option( 'pupbf_pdf_sensitive', 'no' ) ); ?> />
-								Include home access details and key safe codes on <em>your</em> PDF
+								Include the home access answer on <em>your</em> PDF
 							</label>
 						</p>
 						<p class="description">
@@ -431,7 +431,7 @@ function pupbf_settings_page() {
 		<h2>Data &amp; privacy</h2>
 		<p>
 			<?php if ( pupbf_can_encrypt() ) : ?>
-				Home access details (including key safe codes) are encrypted before they are stored, and are never included in any email. 🔒
+				The form no longer asks for keycodes — clients are told to pass those to you separately. The free-text access answer is still encrypted before it is stored and kept out of every email, in case someone types a code in anyway. 🔒
 			<?php else : ?>
 				<strong>Note:</strong> this server has no OpenSSL support, so access details are stored as ordinary text. They are still kept out of every email.
 			<?php endif; ?>
@@ -460,10 +460,10 @@ function pupbf_export_page() {
 			<p>
 				<label>
 					<input type="checkbox" name="include_sensitive" value="1" />
-					Include home access details and key safe codes
+					Include the home access answer
 				</label>
 				<br />
-				<span class="description">Left out by default — a spreadsheet of key safe codes is an easy thing to email to the wrong person.</span>
+				<span class="description">Left out by default — a spreadsheet of everyone's home access details is an easy thing to email to the wrong person.</span>
 			</p>
 			<?php submit_button( 'Download CSV' ); ?>
 		</form>
