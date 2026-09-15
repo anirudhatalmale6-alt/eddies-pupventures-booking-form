@@ -64,6 +64,14 @@ function pupbf_handle_submit() {
 		exit;
 	}
 
+	// The private link has to hold on the way in too, or the lock is decorative.
+	if ( ! pupbf_has_link_code() ) {
+		wp_die(
+			esc_html__( 'This booking form is by invitation. Please use the link you were sent, or ring 07366 308303.', 'pupventures-booking' ),
+			403
+		);
+	}
+
 	if ( pupbf_rate_limited() ) {
 		pupbf_fail( $redirect, array(), array(), 'That\'s a few forms in a row from this device. Please give it an hour, or ring me on 07366 308303.' );
 	}
@@ -276,10 +284,63 @@ function pupbf_summary_text( $post_id, $redact = true ) {
 	return $out;
 }
 
+/**
+ * Write the PDF to a temporary file so wp_mail() can attach it, and register
+ * a shutdown hook to delete it. Attachments are read at send time, so the
+ * file has to outlive wp_mail() but must not outlive the request.
+ *
+ * @return string Path, or '' if the PDF could not be made.
+ */
+function pupbf_temp_pdf( $post_id, $include_sensitive ) {
+	if ( ! function_exists( 'pupbf_build_pdf' ) ) {
+		return '';
+	}
+
+	try {
+		$bytes = pupbf_build_pdf( $post_id, $include_sensitive );
+	} catch ( Exception $e ) {
+		error_log( '[Pupventures Booking] Could not build the PDF for booking #' . $post_id . ': ' . $e->getMessage() );
+		return '';
+	}
+
+	if ( ! $bytes ) {
+		return '';
+	}
+
+	$dir = get_temp_dir() . 'pupbf-' . wp_generate_password( 8, false, false );
+	if ( ! wp_mkdir_p( $dir ) ) {
+		return '';
+	}
+
+	$path = trailingslashit( $dir ) . pupbf_pdf_filename( $post_id );
+	if ( false === file_put_contents( $path, $bytes ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions
+		return '';
+	}
+
+	register_shutdown_function(
+		function () use ( $path, $dir ) {
+			if ( file_exists( $path ) ) {
+				@unlink( $path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
+			}
+			@rmdir( $dir ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
+		}
+	);
+
+	return $path;
+}
+
 function pupbf_notify( $post_id, $values ) {
 	$headers = array( 'Content-Type: text/plain; charset=UTF-8' );
 	$owner   = $values['owner_name'];
 	$dogs    = $values['dog_names'];
+
+	$attach_pdf     = 'no' !== get_option( 'pupbf_attach_pdf', 'yes' );
+	$pdf_sensitive  = 'yes' === get_option( 'pupbf_pdf_sensitive', 'no' );
+	$has_access     = '' !== trim( (string) $values['access_info'] );
+
+	$admin_pdf  = $attach_pdf ? pupbf_temp_pdf( $post_id, $pdf_sensitive ) : '';
+	// The client's own copy never carries access details, whatever the setting.
+	$client_pdf = $attach_pdf ? pupbf_temp_pdf( $post_id, false ) : '';
 
 	/* --- to Dee --------------------------------------------------------- */
 	$admin_body  = "A new booking agreement has just been signed on the website.\n\n";
@@ -287,9 +348,21 @@ function pupbf_notify( $post_id, $values ) {
 	$admin_body .= 'Dog(s): ' . $dogs . "\n";
 	$admin_body .= 'Phone: ' . $values['phone'] . "\n";
 	$admin_body .= 'Email: ' . $values['email'] . "\n";
-	$admin_body .= "\nView the full signed form, including the signature and any access details:\n";
+	if ( $admin_pdf ) {
+		$admin_body .= "\nThe signed agreement is attached as a PDF — save it wherever you keep your records.\n";
+	}
+	$admin_body .= "\nView it in your dashboard (this is the only place access details ever appear):\n";
 	$admin_body .= admin_url( 'post.php?post=' . $post_id . '&action=edit' ) . "\n";
-	$admin_body .= "\nHome access details are stored on the website only and are deliberately left out of this email.\n";
+
+	if ( $has_access && ! $pdf_sensitive ) {
+		$admin_body .= "\nHome access details were given on this form. They are deliberately left out of\n";
+		$admin_body .= "this email and its attachment, and are held on the website only. You can change\n";
+		$admin_body .= "that under Booking Forms > Settings if you'd rather have them on the PDF.\n";
+	} elseif ( $has_access && $pdf_sensitive ) {
+		$admin_body .= "\nNote: the attached PDF includes the home access details, because you asked for\n";
+		$admin_body .= "them to be included. Take care where this file ends up.\n";
+	}
+
 	$admin_body .= "\n" . str_repeat( '=', 40 ) . "\n";
 	$admin_body .= pupbf_summary_text( $post_id, true );
 	$admin_body .= "\nSigned: " . get_post_meta( $post_id, '_pupbf_signed_at', true );
@@ -304,21 +377,24 @@ function pupbf_notify( $post_id, $values ) {
 		pupbf_notify_email(),
 		'New booking form — ' . $owner . ( $dogs ? ' (' . $dogs . ')' : '' ),
 		$admin_body,
-		$admin_headers
+		$admin_headers,
+		$admin_pdf ? array( $admin_pdf ) : array()
 	);
 
 	/* --- their copy ------------------------------------------------------ */
 	$client_sent = false;
 	if ( is_email( $values['email'] ) && 'no' !== get_option( 'pupbf_send_client_copy', 'yes' ) ) {
 		$body  = 'Hi ' . $owner . ",\n\n";
-		$body .= "Thank you — your booking agreement with Eddie's Pupventures is signed and safely received. Here's a copy for your records.\n";
+		$body .= "Thank you — your booking agreement with Eddie's Pupventures is signed and safely received.\n";
+		if ( $client_pdf ) {
+			$body .= "\nYour signed copy is attached as a PDF, with the full terms on it. Keep it somewhere safe.\n";
+		}
 		$body .= "\nI'll be in touch shortly to confirm your first walk. If anything below needs changing, just reply to this email or ring me on 07366 308303.\n";
 		$body .= "\n" . str_repeat( '=', 40 ) . "\n";
 		$body .= pupbf_summary_text( $post_id, true );
 		$body .= "\nSigned: " . get_post_meta( $post_id, '_pupbf_signed_at', true );
 		$body .= "\nAgreement version: " . PUPBF_AGREEMENT_VERSION . "\n";
-		$body .= "\nFor your security, any home access details you gave me are stored on the website rather than repeated in this email.\n";
-		$body .= "\nThe full terms you agreed to are always on the website: " . home_url( '/booking-form/' ) . "\n";
+		$body .= "\nFor your security, any home access details you gave me are stored on the website rather than repeated in this email or its attachment.\n";
 		$body .= "\nWith wags,\nDee & Eddie\nEddie's Pupventures, Basingstoke\n";
 
 		$client_headers   = $headers;
@@ -328,7 +404,8 @@ function pupbf_notify( $post_id, $values ) {
 			$values['email'],
 			'Your booking agreement with Eddie\'s Pupventures',
 			$body,
-			$client_headers
+			$client_headers,
+			$client_pdf ? array( $client_pdf ) : array()
 		);
 	}
 

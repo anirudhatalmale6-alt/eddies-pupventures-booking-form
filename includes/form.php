@@ -185,6 +185,11 @@ function pupbf_render_terms() {
  * [pupventures_booking_form]
  */
 function pupbf_form_shortcode() {
+	// Arrived without the private link? Show a friendly dead end instead.
+	if ( ! pupbf_has_link_code() ) {
+		return pupbf_locked_notice();
+	}
+
 	ob_start();
 
 	// Success screen.

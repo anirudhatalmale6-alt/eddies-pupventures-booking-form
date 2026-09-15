@@ -63,3 +63,16 @@
 .post-type-pup_booking #titlediv { display: none; }
 .post-type-pup_booking #minor-publishing,
 .post-type-pup_booking #major-publishing-actions { display: none; }
+
+/* ---- the private link box ---- */
+.pupbf-linkbox {
+	max-width: 780px;
+	margin: 18px 0 24px;
+	padding: 16px 20px;
+	background: #FFFBF3;
+	border: 1px solid #F0E4D2;
+	border-left: 4px solid #FF6B4A;
+	border-radius: 6px;
+}
+.pupbf-linkbox h2 { font-size: 15px; }
+.pupbf-linkbox input.code { background: #fff; font-size: 13px; padding: 8px 10px; }

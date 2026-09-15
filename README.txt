@@ -1,5 +1,5 @@
 === Eddie's Pupventures — Booking Agreement ===
-Version: 1.0.0
+Version: 1.1.0
 
 The paper booking agreement, rebuilt as a mobile-friendly online form.
 
@@ -29,8 +29,9 @@ WHEN SOMEONE SIGNS
 ------------------
 * The form is saved in WordPress first, so nothing is ever lost even if
   the email fails.
-* You get an email saying it's arrived, with a link to the record.
-* They get their own copy by email.
+* You get an email with the signed agreement attached as a PDF, plus a
+  link to the record.
+* They get their own copy, PDF included.
 * Home access details (key safe codes) are encrypted in the database and
   are deliberately left out of every email. They only appear when you're
   logged in to your own dashboard.
@@ -40,6 +41,15 @@ CHANGING THE PRICES
 -------------------
 Booking Forms → Settings. The price list on the form, and the estimate a
 client sees before signing, both follow whatever you put there.
+
+
+KEEPING IT PRIVATE
+------------------
+The booking page is never listed in your menu, is hidden from Google and
+is left out of your site's own search. Under Settings you can also switch
+on a private link, so the page only opens for people who have the link
+you sent them. Everyone else sees a short note asking them to get in
+touch first.
 
 
 PUTTING THE FORM SOMEWHERE ELSE

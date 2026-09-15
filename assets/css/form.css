@@ -411,3 +411,31 @@
 	.pupbf-next, .pupbf-submit { flex: 0 0 auto; }
 	.pupbf-sig-pad { height: 210px; }
 }
+
+/* ---------- by-invitation notice ----------
+   Shown instead of the form when someone arrives without the private link. */
+.pupbf-locked {
+	max-width: 560px;
+	margin-inline: auto;
+	text-align: center;
+	padding: 2.6rem 1.6rem;
+	border-radius: 28px;
+	background: linear-gradient(135deg, #FFF3D9 0%, #FFE6DC 100%);
+	border: 2px solid #FBDCC3;
+	font-family: var(--wp--preset--font-family--body, ui-rounded, "Segoe UI", sans-serif);
+	color: var(--wp--preset--color--contrast, #2C2724);
+}
+.pupbf-locked-paw { font-size: 3rem; line-height: 1; margin-bottom: .5rem; }
+.pupbf-locked h2 {
+	font-family: var(--wp--preset--font-family--heading, ui-rounded, sans-serif);
+	font-weight: 800;
+	margin: 0 0 .7rem;
+}
+.pupbf-locked p { margin: 0 0 .8rem; line-height: 1.6; }
+.pupbf-locked p:last-child { margin-bottom: 0; }
+.pupbf-locked a {
+	color: #C7431F;
+	font-weight: 700;
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}

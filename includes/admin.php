@@ -204,7 +204,13 @@ function pupbf_render_actions( $post ) {
 	);
 	$status = get_post_meta( $post->ID, '_pupbf_status', true );
 
-	echo '<p><a class="button button-primary button-large pupbf-full" href="' . esc_url( $print ) . '" target="_blank" rel="noopener">Print / save as PDF</a></p>';
+	$download = wp_nonce_url(
+		admin_url( 'admin-post.php?action=pupbf_pdf&booking=' . $post->ID ),
+		'pupbf_pdf_' . $post->ID
+	);
+
+	echo '<p><a class="button button-primary button-large pupbf-full" href="' . esc_url( $download ) . '">Download PDF</a></p>';
+	echo '<p><a class="button pupbf-full" href="' . esc_url( $print ) . '" target="_blank" rel="noopener">Print / view on screen</a></p>';
 
 	echo '<p>';
 	$toggle = wp_nonce_url(
@@ -289,13 +295,22 @@ function pupbf_settings_page() {
 		wp_die( 'Nope.', 403 );
 	}
 
-	$saved = false;
+	$saved    = false;
+	$new_code = false;
 	if ( isset( $_POST['pupbf_settings_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['pupbf_settings_nonce'] ) ), 'pupbf_settings' ) ) {
 		$email = isset( $_POST['pupbf_notify_email'] ) ? sanitize_email( wp_unslash( $_POST['pupbf_notify_email'] ) ) : '';
 		if ( $email && is_email( $email ) ) {
 			update_option( 'pupbf_notify_email', $email );
 		}
 		update_option( 'pupbf_send_client_copy', empty( $_POST['pupbf_send_client_copy'] ) ? 'no' : 'yes' );
+		update_option( 'pupbf_attach_pdf', empty( $_POST['pupbf_attach_pdf'] ) ? 'no' : 'yes' );
+		update_option( 'pupbf_pdf_sensitive', empty( $_POST['pupbf_pdf_sensitive'] ) ? 'no' : 'yes' );
+		update_option( 'pupbf_require_code', empty( $_POST['pupbf_require_code'] ) ? 'no' : 'yes' );
+
+		if ( ! empty( $_POST['pupbf_new_code'] ) ) {
+			pupbf_new_link_code();
+			$new_code = true;
+		}
 
 		$prices = array();
 		foreach ( array_keys( pupbf_prices() ) as $k ) {
@@ -324,11 +339,17 @@ function pupbf_settings_page() {
 			<div class="notice notice-success is-dismissible"><p>Saved.</p></div>
 		<?php endif; ?>
 
-		<?php if ( $page_id && get_post_status( $page_id ) ) : ?>
-			<p>Your form lives at <a href="<?php echo esc_url( get_permalink( $page_id ) ); ?>" target="_blank" rel="noopener"><?php echo esc_html( get_permalink( $page_id ) ); ?></a> — send that link to new clients, or add it to your menu.</p>
-		<?php else : ?>
-			<p>Pop the shortcode <code>[pupventures_booking_form]</code> on any page to show the form.</p>
+		<?php if ( $new_code ) : ?>
+			<div class="notice notice-warning"><p><strong>New link code generated.</strong> Any link you sent out before now has stopped working — send the new one below.</p></div>
 		<?php endif; ?>
+
+		<div class="pupbf-linkbox">
+			<h2 style="margin-top:0;">The link to send people</h2>
+			<p><input type="text" class="large-text code" readonly onclick="this.select();" value="<?php echo esc_attr( pupbf_private_link() ); ?>" /></p>
+			<p class="description">
+				Click to select, then copy. This page is never listed in your menu, never shown in search results, and is hidden from Google.
+			</p>
+		</div>
 
 		<form method="post">
 			<?php wp_nonce_field( 'pupbf_settings', 'pupbf_settings_nonce' ); ?>
@@ -347,6 +368,48 @@ function pupbf_settings_page() {
 							<input type="checkbox" name="pupbf_send_client_copy" value="1" <?php checked( 'no' !== get_option( 'pupbf_send_client_copy', 'yes' ) ); ?> />
 							Email each client a copy of what they signed
 						</label>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row">PDF by email</th>
+					<td>
+						<label>
+							<input type="checkbox" name="pupbf_attach_pdf" value="1" <?php checked( 'no' !== get_option( 'pupbf_attach_pdf', 'yes' ) ); ?> />
+							Attach the completed agreement as a PDF
+						</label>
+						<p class="description">Goes to you, and to the client with their copy. Save it straight from your inbox.</p>
+
+						<p style="margin-top:.8rem;">
+							<label>
+								<input type="checkbox" name="pupbf_pdf_sensitive" value="1" <?php checked( 'yes' === get_option( 'pupbf_pdf_sensitive', 'no' ) ); ?> />
+								Include home access details and key safe codes on <em>your</em> PDF
+							</label>
+						</p>
+						<p class="description">
+							Off by default, and deliberately so — an email attachment gets forwarded, backed up and
+							synced to places you don't control. The client's copy never includes them either way.
+							Your dashboard always shows the full record.
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row">Private link</th>
+					<td>
+						<label>
+							<input type="checkbox" name="pupbf_require_code" value="1" <?php checked( pupbf_link_code_enabled() ); ?> />
+							Require a code in the link
+						</label>
+						<p class="description">
+							With this on, anyone who reaches the page without your link sees a polite note asking
+							them to get in touch first — so nobody fills it in cold and assumes they're booked.
+						</p>
+						<p style="margin-top:.8rem;">
+							<label>
+								<input type="checkbox" name="pupbf_new_code" value="1" />
+								Generate a brand new code when I save
+							</label>
+						</p>
+						<p class="description">Only tick this if a link has gone somewhere it shouldn't — it stops every link you've already sent.</p>
 					</td>
 				</tr>
 			</table>

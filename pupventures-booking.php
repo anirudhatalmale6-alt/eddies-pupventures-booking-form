@@ -3,7 +3,7 @@
  * Plugin Name: Eddie's Pupventures — Booking Agreement
  * Plugin URI:  https://eddiespupventures.co.uk
  * Description: A mobile-friendly online Booking Agreement &amp; Terms form with digital signature. Submissions are stored securely inside WordPress, emailed to you, and can be printed or saved as PDF. Shortcode: <code>[pupventures_booking_form]</code>
- * Version:     1.0.0
+ * Version:     1.1.0
  * Author:      Eddie's Pupventures
  * License:     GPL-2.0-or-later
  * Text Domain: pupventures-booking
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'PUPBF_VERSION', '1.0.0' );
+define( 'PUPBF_VERSION', '1.1.0' );
 define( 'PUPBF_FILE', __FILE__ );
 define( 'PUPBF_DIR', plugin_dir_path( __FILE__ ) );
 define( 'PUPBF_URL', plugin_dir_url( __FILE__ ) );
@@ -31,6 +31,8 @@ require_once PUPBF_DIR . 'includes/form.php';
 require_once PUPBF_DIR . 'includes/submit.php';
 require_once PUPBF_DIR . 'includes/admin.php';
 require_once PUPBF_DIR . 'includes/print.php';
+require_once PUPBF_DIR . 'includes/pdf.php';
+require_once PUPBF_DIR . 'includes/privacy.php';
 
 /* ---------------------------------------------------------------------------
  * Activation — register the post type, create the booking page.

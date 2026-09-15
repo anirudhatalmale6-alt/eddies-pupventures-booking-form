@@ -311,6 +311,12 @@
 		function start( e ) {
 			e.preventDefault();
 			drawing = true;
+			// Keep receiving moves even if a finger strays outside the box —
+			// without this the stroke stops at the edge and resumes with a
+			// straight line back, which looks like a glitch mid-signature.
+			if ( canvas.setPointerCapture && e.pointerId !== undefined ) {
+				try { canvas.setPointerCapture( e.pointerId ); } catch ( err ) { /* not fatal */ }
+			}
 			last = point( e );
 			// A tap with no movement should still leave a mark.
 			ctx.beginPath();
@@ -332,9 +338,12 @@
 			mark();
 		}
 
-		function end() {
+		function end( e ) {
 			if ( ! drawing ) { return; }
 			drawing = false;
+			if ( e && canvas.releasePointerCapture && e.pointerId !== undefined ) {
+				try { canvas.releasePointerCapture( e.pointerId ); } catch ( err ) { /* not fatal */ }
+			}
 			commit();
 		}
 
